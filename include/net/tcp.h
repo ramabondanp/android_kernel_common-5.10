@@ -877,15 +877,18 @@ struct tcp_skb_cb {
 	union {
 		struct {
 			/* There is space for up to 24 bytes */
-			__u32 in_flight:30,/* Bytes in flight at transmit */
-			      is_app_limited:1, /* cwnd not fully used? */
-			      unused:1;
+			__u32 is_app_limited:1, /* cwnd not fully used? */
+			      unused:31;
 			/* pkts S/ACKed so far upon tx of skb, incl retrans: */
 			__u32 delivered;
 			/* start of send pipeline phase */
 			u32 first_tx_mstamp;
 			/* when we reached the "delivered" count */
 			u32 delivered_mstamp;
+#define TCPCB_IN_FLIGHT_BITS 20
+#define TCPCB_IN_FLIGHT_MAX ((1U << TCPCB_IN_FLIGHT_BITS) - 1)
+			u32 in_flight:20,   /* packets in flight at transmit */
+			    unused2:12;
 		} tx;   /* only used for outgoing skbs */
 		union {
 			struct inet_skb_parm	h4;
@@ -1056,6 +1059,7 @@ struct ack_sample {
 struct rate_sample {
 	u64  prior_mstamp; /* starting timestamp for interval */
 	u32  prior_delivered;	/* tp->delivered at "prior_mstamp" */
+	u32  tx_in_flight;	/* packets in flight at starting timestamp */
 	s32  delivered;		/* number of packets delivered over interval */
 	long interval_us;	/* time for tp->delivered to incr "delivered" */
 	u32 snd_interval_us;	/* snd interval for delivered packets */
@@ -1167,6 +1171,7 @@ static inline void tcp_ca_event(struct sock *sk, const enum tcp_ca_event event)
 }
 
 /* From tcp_rate.c */
+void tcp_set_tx_in_flight(struct sock *sk, struct sk_buff *skb);
 void tcp_rate_skb_sent(struct sock *sk, struct sk_buff *skb);
 void tcp_rate_skb_delivered(struct sock *sk, struct sk_buff *skb,
 			    struct rate_sample *rs);
