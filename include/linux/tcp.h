@@ -155,6 +155,7 @@ struct tcp_sock {
  */
 	__be32	pred_flags;
 
+
 /*
  *	RFC793 variables by their proper names. This means you can
  *	read the code and the spec side by side (and laugh ...)
@@ -226,7 +227,8 @@ struct tcp_sock {
 	u8	compressed_ack;
 	u8	dup_ack_counter:2,
 		tlp_retrans:1,	/* TLP is a retransmission */
-		unused:5;
+		tlp_orig_data_app_limited:1, /* app-limited before TLP rtx? */
+		unused:4;
 	u32	chrono_start;	/* Start time in jiffies of a TCP chrono */
 	u32	chrono_stat[3];	/* Time in jiffies for chrono_stat stats */
 	u8	chrono_type:2,	/* current chronograph type */
