@@ -1,3 +1,0 @@
-[submodule "drivers/staging/kernelsu"]
-	path = drivers/staging/kernelsu
-	url = https://github.com/ramabondanp/KernelSU-Next
