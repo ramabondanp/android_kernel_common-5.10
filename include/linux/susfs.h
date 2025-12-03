@@ -54,11 +54,6 @@ struct st_susfs_hide_sus_mnts_for_all_procs {
 	bool                                    enabled;
 	int                                     err;
 };
-
-struct st_susfs_umount_for_zygote_iso_service {
-	bool                                    enabled;
-	int                                     err;
-};
 #endif
 
 /* sus_kstat */
@@ -176,7 +171,6 @@ void susfs_add_sus_path_loop(void __user **user_info);
 /* sus_mount */
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
 void susfs_set_hide_sus_mnts_for_all_procs(void __user **user_info);
-void susfs_set_umount_for_zygote_iso_service(void __user **user_info);
 #endif // #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
 
 /* sus_kstat */
