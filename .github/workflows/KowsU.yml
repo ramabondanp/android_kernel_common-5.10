@@ -1,4 +1,4 @@
-name: KONTOL
+name: KowSU Fixed Build
 
 on:
   workflow_dispatch:
@@ -95,31 +95,7 @@ jobs:
           sed -i '/pr_warn.*disagrees about version of symbol.*/,+1 s/.*/return 1;/' kernel/module.c
           sed -i '/^static int drm_atomic_check_valid_clones/,/^}/d' drivers/gpu/drm/drm_atomic_helper.c
           sed -i '/ret = drm_atomic_check_valid_clones/,/return ret;/d' drivers/gpu/drm/drm_atomic_helper.c
-          
-          # Fix KMI for missing __stack_chk_guard in ksymtab
-          # This fix addresses the root cause related to CONFIG_STACKPROTECTOR_PER_TASK
-          FILE_PATH="kernel/stackprotector.c"
-          
-          # Fix first block condition
-          sed -i 's/#if defined(CONFIG_STACKPROTECTOR)/#if defined(CONFIG_STACKPROTECTOR) \&\& !defined(CONFIG_STACKPROTECTOR_PER_TASK)/' "$FILE_PATH"
-          
-          # Add second block if not exists
-          if ! grep -q "#if defined(CONFIG_STACKPROTECTOR_PER_TASK)" "$FILE_PATH"; then
-            echo "" >> "$FILE_PATH"
-            echo "#if defined(CONFIG_STACKPROTECTOR_PER_TASK)" >> "$FILE_PATH"
-            echo "unsigned long __stack_chk_guard __ro_after_init;" >> "$FILE_PATH"
-            echo "EXPORT_SYMBOL(__stack_chk_guard);" >> "$FILE_PATH"
-            echo "#endif" >> "$FILE_PATH"
-            echo "Added CONFIG_STACKPROTECTOR_PER_TASK block"
-          else
-            echo "CONFIG_STACKPROTECTOR_PER_TASK block already exists"
-          fi
-          
-          # Remove duplicate includes if any
-          sed -i '/#if defined(CONFIG_STACKPROTECTOR_PER_TASK)/{N;s/#if defined(CONFIG_STACKPROTECTOR_PER_TASK)\n#include <linux\/stackprotector.h>/#if defined(CONFIG_STACKPROTECTOR_PER_TASK)/;}' "$FILE_PATH"
-          
-          echo "✅ __stack_chk_guard export issue fixed"
-
+       
       - name: Configure Defconfig (KSU/SuSFS)
         working-directory: gki/common
         run: |
@@ -181,6 +157,39 @@ jobs:
           # 2. Update build config untuk Clang version
           sed -i "s/clang-r[0-9]*[a-z]*/${CLANG_VER}/g" common/build.config.gki.aarch64
           sed -i "s/clang-r[0-9]*[a-z]*/${CLANG_VER}/g" common/build.config.common 2>/dev/null || true
+          
+          # Fix __stack_chk_guard export issue
+          echo "🔧 [9.5/11] Fixing __stack_chk_guard export issue..."
+          FILE_PATH="common/arch/arm64/kernel/process.c"
+          BACKUP_PATH="common/arch/arm64/kernel/process.c.bak"
+
+          # Create backup if not exists
+          if [ ! -f "$BACKUP_PATH" ]; then
+            cp "$FILE_PATH" "$BACKUP_PATH"
+            echo "Backup created at $BACKUP_PATH"
+          fi
+
+          # Fix first block condition
+          sed -i 's/#if defined(CONFIG_STACKPROTECTOR)/#if defined(CONFIG_STACKPROTECTOR) \&\& !defined(CONFIG_STACKPROTECTOR_PER_TASK)/' "$FILE_PATH"
+
+          # Add second block if not exists
+          if ! grep -q "#if defined(CONFIG_STACKPROTECTOR_PER_TASK)" "$FILE_PATH"; then
+            cat >> "$FILE_PATH" << 'EOF'
+
+#if defined(CONFIG_STACKPROTECTOR_PER_TASK)
+unsigned long __stack_chk_guard __ro_after_init;
+EXPORT_SYMBOL(__stack_chk_guard);
+#endif
+EOF
+            echo "Added CONFIG_STACKPROTECTOR_PER_TASK block"
+          else
+            echo "CONFIG_STACKPROTECTOR_PER_TASK block already exists"
+          fi
+
+          # Remove duplicate includes if any
+          sed -i '/#if defined(CONFIG_STACKPROTECTOR_PER_TASK)/{N;s/#if defined(CONFIG_STACKPROTECTOR_PER_TASK)\n#include <linux\/stackprotector.h>/#if defined(CONFIG_STACKPROTECTOR_PER_TASK)/;}' "$FILE_PATH"
+
+          echo "✅ __stack_chk_guard export issue fixed"
           
           # 3. Disable check_defconfig
           sed -i 's/check_defconfig//' ./common/build.config.gki
