@@ -76,18 +76,19 @@ jobs:
           rm -rf clang-r416183b
           ln -sf $CLANG_VER clang-r416183b
 
-      - name: Setup Upstream & KernelSU-Next
+      # --- LANGSUNG GANTI BAGIAN INI ---
+      - name: Setup Upstream & KernelSU (SUBMODULE METHOD)
         working-directory: gki/common
         run: |
-          # Upstream to 5.10.246 logic
           git remote add rama https://github.com/ramabondanp/android_kernel_common-5.10.git
           git fetch -j12 rama
           git checkout -b update-5.10.247 rama/android12-5.10-staging
-          
-          # Setup KernelSU-KowSU
-          rm -rf drivers/staging/kernelsu
-          curl -LSs "https://raw.githubusercontent.com/ramabondanp/KernelSU/f17dfa259d8a361074ab2af9ef108ecab0b2fe27/kernel/setup.sh" | bash -
-          echo "✅ KernelSU-KowSU successfully applied"
+
+          # INIT & UPDATE SUBMODULE — INI YANG BENAR
+          git submodule update --init --recursive drivers/staging/kernelsu
+
+          echo "✅ KernelSU Rama submodule updated"
+      # --- SAMPAI SINI ---
 
       - name: Apply Compatibility Patches
         working-directory: gki/common
