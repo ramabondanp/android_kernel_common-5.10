@@ -82,7 +82,7 @@ jobs:
           # Upstream to 5.10.247 logic
           git remote add rama https://github.com/ramabondanp/android_kernel_common-5.10.git
           git fetch -j12 rama
-          git checkout -b update-5.10.247 rama/android12-5.10
+          git cherry-pick 2afc3cd 8f27b49
           
           # Setup KernelSU-KowSU with new patch
           curl -LSs "https://raw.githubusercontent.com/KOWX712/KernelSU/refs/heads/master/kernel/setup.sh" | bash -
