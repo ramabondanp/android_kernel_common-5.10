@@ -77,7 +77,7 @@ jobs:
           ln -sf $CLANG_VER clang-r416183b
 
       # --- LANGSUNG GANTI BAGIAN INI ---
-      - name: Setup Upstream & KernelSU (SUBMODULE METHOD)
+      - name: Setup Upstream & KernelSU-KowSU (SUBMODULE METHOD)
         working-directory: gki/common
         run: |
           git remote add rama https://github.com/ramabondanp/android_kernel_common-5.10.git
@@ -98,7 +98,7 @@ jobs:
           sed -i '/^static int drm_atomic_check_valid_clones/,/^}/d' drivers/gpu/drm/drm_atomic_helper.c
           sed -i '/ret = drm_atomic_check_valid_clones/,/return ret;/d' drivers/gpu/drm/drm_atomic_helper.c
 
-      - name: Configure Defconfig (KSU/SuSFS)
+      - name: Configure Defconfig (KowSU)
         working-directory: gki/common
         run: |
           DEFCONFIG="arch/arm64/configs/gki_defconfig"
