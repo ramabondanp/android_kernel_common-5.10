@@ -97,8 +97,30 @@ jobs:
           sed -i '/ret = drm_atomic_check_valid_clones/,/return ret;/d' drivers/gpu/drm/drm_atomic_helper.c
           
           # Fix KMI for missing __stack_chk_guard in ksymtab
-          # This error occurs after applying KernelSU, so we force-export the symbol here.
-          echo "EXPORT_SYMBOL_GPL(__stack_chk_guard);" >> drivers/android/abi_gki_protected_exports
+          # This fix addresses the root cause related to CONFIG_STACKPROTECTOR_PER_TASK
+          FILE_PATH="kernel/stackprotector.c"
+          
+          # Fix first block condition
+          sed -i 's/#if defined(CONFIG_STACKPROTECTOR)/#if defined(CONFIG_STACKPROTECTOR) \&\& !defined(CONFIG_STACKPROTECTOR_PER_TASK)/' "$FILE_PATH"
+          
+          # Add second block if not exists
+          if ! grep -q "#if defined(CONFIG_STACKPROTECTOR_PER_TASK)" "$FILE_PATH"; then
+            cat >> "$FILE_PATH" << 'EOF'
+
+#if defined(CONFIG_STACKPROTECTOR_PER_TASK)
+unsigned long __stack_chk_guard __ro_after_init;
+EXPORT_SYMBOL(__stack_chk_guard);
+#endif
+EOF
+            echo "Added CONFIG_STACKPROTECTOR_PER_TASK block"
+          else
+            echo "CONFIG_STACKPROTECTOR_PER_TASK block already exists"
+          fi
+          
+          # Remove duplicate includes if any
+          sed -i '/#if defined(CONFIG_STACKPROTECTOR_PER_TASK)/{N;s/#if defined(CONFIG_STACKPROTECTOR_PER_TASK)\n#include <linux\/stackprotector.h>/#if defined(CONFIG_STACKPROTECTOR_PER_TASK)/;}' "$FILE_PATH"
+          
+          echo "✅ __stack_chk_guard export issue fixed"
 
       - name: Configure Defconfig (KSU/SuSFS)
         working-directory: gki/common
