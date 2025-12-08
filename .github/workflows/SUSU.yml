@@ -50,7 +50,6 @@ jobs:
           repo init -u https://android.googlesource.com/kernel/manifest -b common-android12-5.10 --depth=1
           repo sync -c --no-tags --no-clone-bundle --optimized-fetch -j$(nproc --all)
 
-      # --- AWAL BAGIAN YANG DIUBAH ---
       - name: Update Kernel to 5.10.247 from Rama
         working-directory: gki/common
         run: |
@@ -62,7 +61,8 @@ jobs:
           
           # Merge Rama's staging branch into our current branch
           # This brings in all the 5.10.247 changes
-          git merge rama/android12-5.10-staging -m "Merge Rama's 5.10.247 updates"
+          # TAMBAHKAN FLAG --allow-unrelated-histories
+          git merge rama/android12-5.10-staging --allow-unrelated-histories -m "Merge Rama's 5.10.247 updates"
           
           echo "🧹 Cleaning up potential conflicts from Rama's repo..."
           # Remove any .gitmodules file to avoid submodule issues
@@ -78,7 +78,6 @@ jobs:
           git commit -m "Clean up KernelSU remnants from Rama merge" || true
           
           echo "✅ Kernel source updated to 5.10.247 and cleaned."
-      # --- AKHIR BAGIAN YANG DIUBAH ---
 
       - name: Delete Line 2 in build.config.gki
         run: |
