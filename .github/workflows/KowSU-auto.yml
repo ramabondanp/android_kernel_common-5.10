@@ -76,16 +76,19 @@ jobs:
           rm -rf clang-r416183b
           ln -sf $CLANG_VER clang-r416183b
 
-      - name: Setup Upstream & KernelSU-Next
+      - name: Setup Upstream & KernelSU
         working-directory: gki/common
         run: |
           # Upstream to 5.10.247 logic
           git remote add rama https://github.com/ramabondanp/android_kernel_common-5.10.git
           git fetch -j12 rama
-          git checkout -b update-5.10.247 rama/android12-5.10-staging
+          git checkout -b update-5.10.247 rama/android12-5.10
           
-          # KernelSU KowSU sudah termasuk di dalam branch rama/android12-5.10-staging
-          echo "✅ KernelSU KowSU is ready from upstream."
+          # Jalankan script setup.sh dari KOWX712/KernelSU branch staging
+          # Script ini akan mengunduh dan menerapkan patch KernelSU dengan benar
+          echo "🔄 Applying KernelSU from KOWX712 (staging)..."
+          curl -LSs "https://raw.githubusercontent.com/KOWX712/KernelSU/refs/heads/staging/kernel/setup.sh" | bash
+          echo "✅ KernelSU setup complete."
 
       - name: Apply Compatibility Patches
         working-directory: gki/common
@@ -133,16 +136,10 @@ jobs:
         run: |
           echo "Applying requested cherry-picks..."
           
-          # Patch 1: Common 5.10 update/fix
-          curl -L "https://github.com/ramabondanp/android_kernel_common-5.10/commit/4fe04b60009e.patch" | git am -3 || {
-             echo "git am failed, falling back to patch..."
-             curl -L "https://github.com/ramabondanp/android_kernel_common-5.10/commit/4fe04b60009e.patch" | patch -p1
-          }
-
           # Patch 2: Xiaomi Marble specific fix
-          curl -L "https://github.com/Pzqqt/android_kernel_xiaomi_marble/commit/477706c2bcaaf48350c61f9f6824e1e454617147.patch" | git am -3 || {
+          curl -L "https://github.com/Pzqqt/android_kernel_xiaomi_marble/commit/477706c2bcaaf48350c61f9f6824e1e456617147.patch" | git am -3 || {
              echo "git am failed, falling back to patch..."
-             curl -L "https://github.com/Pzqqt/android_kernel_xiaomi_marble/commit/477706c2bcaaf48350c61f9f6824e1e454617147.patch" | patch -p1
+             curl -L "https://github.com/Pzqqt/android_kernel_xiaomi_marble/commit/477706c2bcaaf48350c61f9f6824e1e456617147.patch" | patch -p1
           }
 
       - name: Final Build Config & Version Fix
