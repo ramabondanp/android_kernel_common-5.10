@@ -174,13 +174,11 @@ jobs:
 
           # Add second block if not exists
           if ! grep -q "#if defined(CONFIG_STACKPROTECTOR_PER_TASK)" "$FILE_PATH"; then
-            cat >> "$FILE_PATH" << 'EOF'
-
-#if defined(CONFIG_STACKPROTECTOR_PER_TASK)
-unsigned long __stack_chk_guard __ro_after_init;
-EXPORT_SYMBOL(__stack_chk_guard);
-#endif
-EOF
+            echo "" >> "$FILE_PATH"
+            echo "#if defined(CONFIG_STACKPROTECTOR_PER_TASK)" >> "$FILE_PATH"
+            echo "unsigned long __stack_chk_guard __ro_after_init;" >> "$FILE_PATH"
+            echo "EXPORT_SYMBOL(__stack_chk_guard);" >> "$FILE_PATH"
+            echo "#endif" >> "$FILE_PATH"
             echo "Added CONFIG_STACKPROTECTOR_PER_TASK block"
           else
             echo "CONFIG_STACKPROTECTOR_PER_TASK block already exists"
