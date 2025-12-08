@@ -86,8 +86,8 @@ jobs:
           
           # Setup KernelSU-KowSU
           rm -rf drivers/staging/kernelsu
-            # Clone KernelSU KowSU dari branch yang SESUAI (android12-5.10)
-          git clone https://github.com/KOWX712/KernelSU -b gki-android12-5.10 drivers/staging/kernelsu
+            # Clone KernelSU KowSU dari branch 'staging'
+          git clone https://github.com/KOWX712/KernelSU -b staging drivers/staging/kernelsu
           echo "✅ KernelSU-KowSU successfully cloned"
 
       - name: Apply Compatibility Patches
@@ -143,9 +143,9 @@ jobs:
           }
 
           # Patch 2: Xiaomi Marble specific fix
-          curl -L "https://github.com/Pzqqt/android_kernel_xiaomi_marble/commit/477706c2bcaaf48350c61f9f6824e1e454617147.patch" | git am -3 || {
+          curl -L "https://github.com/Pzqqt/android_kernel_xiaomi_marble/commit/477706c2bcaaf48350c61f9f6824e1e456617147.patch" | git am -3 || {
              echo "git am failed, falling back to patch..."
-             curl -L "https://github.com/Pzqqt/android_kernel_xiaomi_marble/commit/477706c2bcaaf48350c61f9f6824e1e454617147.patch" | patch -p1
+             curl -L "https://github.com/Pzqqt/android_kernel_xiaomi_marble/commit/477706c2bcaaf48350c61f9f6824e1e456617147.patch" | patch -p1
           }
 
       - name: Final Build Config & Version Fix
