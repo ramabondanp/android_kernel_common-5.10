@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # --- Configuration ---------------------------------------------------------
-readonly LLVM_VERSION="22.1.8"
+readonly LLVM_VERSION="23.1.0-rc1"
 readonly LLVM_ARCH="x86_64"
 readonly LLVM_MAJOR="${LLVM_VERSION%%.*}"
 readonly TOOLCHAIN_ROOT="$HOME/kernel/toolchain"
@@ -11,7 +11,7 @@ readonly CLANG_URL="https://mirrors.edge.kernel.org/pub/tools/llvm/files/llvm-${
 readonly CLANG_HOME="$TOOLCHAIN_ROOT/clang-${LLVM_MAJOR}"
 readonly OUT_DIR="out"
 readonly TARGET_ARCH="arm64"
-readonly LOCAL_VERSION="-Rama982-RE/r23-noSU"
+readonly LOCAL_VERSION="-Rama982-RE/r24-noSU"
 rc=0  # Di-set oleh EXIT trap saat failure, dibaca dari trap itu juga.
 
 # --- Logging ---------------------------------------------------------------
