@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # --- Configuration ---------------------------------------------------------
-readonly LLVM_VERSION="23.1.0-rc1"
+readonly LLVM_VERSION="23.1.0-rc3"
 readonly LLVM_ARCH="x86_64"
 readonly LLVM_MAJOR="${LLVM_VERSION%%.*}"
 readonly TOOLCHAIN_ROOT="$HOME/kernel/toolchain"
@@ -11,7 +11,8 @@ readonly CLANG_URL="https://mirrors.edge.kernel.org/pub/tools/llvm/files/llvm-${
 readonly CLANG_HOME="$TOOLCHAIN_ROOT/clang-${LLVM_MAJOR}"
 readonly OUT_DIR="out"
 readonly TARGET_ARCH="arm64"
-readonly LOCAL_VERSION="-Rama982-RE/r24-noSU"
+readonly LOCAL_VERSION="-Rama982-RE/r25-noSU"
+readonly TIMEZONE="Asia/Jakarta"
 rc=0  # Di-set oleh EXIT trap saat failure, dibaca dari trap itu juga.
 
 # --- Logging ---------------------------------------------------------------
@@ -50,7 +51,8 @@ fetch_toolchain() {
 # --- Kernel Build Steps ----------------------------------------------------
 setup_environment() {
     export PATH="$CLANG_HOME/bin:$PATH" LLVM=1 LLVM_IAS=1 \
-           ARCH="$TARGET_ARCH" LOCALVERSION="$LOCAL_VERSION" LTO=thin
+           ARCH="$TARGET_ARCH" LOCALVERSION="$LOCAL_VERSION" LTO=thin \
+           TZ="$TIMEZONE"
 }
 
 configure_kernel() {
