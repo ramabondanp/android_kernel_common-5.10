@@ -11,7 +11,7 @@ readonly CLANG_URL="https://mirrors.edge.kernel.org/pub/tools/llvm/files/llvm-${
 readonly CLANG_HOME="$TOOLCHAIN_ROOT/clang-${LLVM_MAJOR}"
 readonly OUT_DIR="out"
 readonly TARGET_ARCH="arm64"
-readonly LOCAL_VERSION="-Rama982-RE/r25-noSU"
+readonly LOCAL_VERSION="-Rama982-RE/r26-noSU"
 readonly TIMEZONE="Asia/Jakarta"
 rc=0  # Di-set oleh EXIT trap saat failure, dibaca dari trap itu juga.
 
