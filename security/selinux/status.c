@@ -88,7 +88,7 @@ void selinux_status_update_setenforce(struct selinux_state *state,
 		status->sequence++;
 		smp_wmb();
 
-		status->enforcing = enforcing;
+		status->enforcing = enforcing_enabled(state);
 
 		smp_wmb();
 		status->sequence++;
