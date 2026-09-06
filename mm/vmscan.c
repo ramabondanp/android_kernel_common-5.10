@@ -3755,7 +3755,7 @@ static void walk_mm(struct lruvec *lruvec, struct mm_struct *mm, struct lru_gen_
 
 static struct lru_gen_mm_walk *set_mm_walk(struct pglist_data *pgdat)
 {
-	struct lru_gen_mm_walk *walk = current->reclaim_state->mm_walk;
+	struct lru_gen_mm_walk *walk = current->mm_walk;
 
 	if (pgdat && current_is_kswapd()) {
 		VM_WARN_ON_ONCE(walk);
@@ -3767,19 +3767,19 @@ static struct lru_gen_mm_walk *set_mm_walk(struct pglist_data *pgdat)
 		walk = kzalloc(sizeof(*walk), __GFP_HIGH | __GFP_NOMEMALLOC | __GFP_NOWARN);
 	}
 
-	current->reclaim_state->mm_walk = walk;
+	current->mm_walk = walk;
 
 	return walk;
 }
 
 static void clear_mm_walk(void)
 {
-	struct lru_gen_mm_walk *walk = current->reclaim_state->mm_walk;
+	struct lru_gen_mm_walk *walk = current->mm_walk;
 
 	VM_WARN_ON_ONCE(walk && memchr_inv(walk->nr_pages, 0, sizeof(walk->nr_pages)));
 	VM_WARN_ON_ONCE(walk && memchr_inv(walk->mm_stats, 0, sizeof(walk->mm_stats)));
 
-	current->reclaim_state->mm_walk = NULL;
+	current->mm_walk = NULL;
 
 	if (!current_is_kswapd())
 		kfree(walk);
@@ -4156,7 +4156,7 @@ void lru_gen_look_around(struct page_vma_mapped_walk *pvmw)
 		return;
 
 	/* avoid taking the LRU lock under the PTL when possible */
-	walk = current->reclaim_state ? current->reclaim_state->mm_walk : NULL;
+	walk = current->mm_walk;
 
 	start = max(pvmw->address & PMD_MASK, pvmw->vma->vm_start);
 	end = min(pvmw->address | ~PMD_MASK, pvmw->vma->vm_end - 1) + 1;
@@ -4594,7 +4594,7 @@ retry:
 
 	move_pages_to_lru(lruvec, &list);
 
-	walk = current->reclaim_state->mm_walk;
+	walk = current->mm_walk;
 	if (walk && walk->batched)
 		reset_batch_size(lruvec, walk);
 

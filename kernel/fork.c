@@ -973,6 +973,9 @@ static struct task_struct *dup_task_struct(struct task_struct *orig, int node)
 	tsk->task_frag.page = NULL;
 	tsk->wake_q.next = NULL;
 	tsk->pf_io_worker = NULL;
+#ifdef CONFIG_LRU_GEN
+	tsk->mm_walk = NULL;
+#endif
 
 	account_kernel_stack(tsk, 1);
 

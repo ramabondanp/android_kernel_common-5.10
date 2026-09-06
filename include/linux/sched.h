@@ -54,6 +54,9 @@ struct pid_namespace;
 struct pipe_inode_info;
 struct rcu_node;
 struct reclaim_state;
+#ifdef CONFIG_LRU_GEN
+struct lru_gen_mm_walk;
+#endif
 struct robust_list_head;
 struct root_domain;
 struct rq;
@@ -1395,7 +1398,11 @@ struct task_struct {
 		unsigned	user_dumpable:1;
 		});
 
+#ifdef CONFIG_LRU_GEN
+	ANDROID_KABI_USE(3, struct lru_gen_mm_walk *mm_walk);
+#else
 	ANDROID_KABI_RESERVE(3);
+#endif
 	ANDROID_KABI_RESERVE(4);
 	ANDROID_KABI_RESERVE(5);
 
